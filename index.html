@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAT Reflection Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+              font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            font-weight: 900;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .test-name-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #e1e5e9;
+        }
+
+        .question-section {
+            margin-bottom: 30px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 2px solid #e1e5e9;
+            position: relative;
+        }
+
+        .question-section::before {
+            content: "Question " attr(data-question-number);
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .question-section:first-of-type {
+            border-color: #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .difficulty-option {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .difficulty-option:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .difficulty-option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .difficulty-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .searchable-select {
+            position: relative;
+        }
+
+        .searchable-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+        }
+
+        .dropdown-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .dropdown-option {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .dropdown-option:hover {
+            background: #f8f9fa;
+        }
+
+        .dropdown-option.highlighted {
+            background: #667eea;
+            color: white;
+        }
+
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .topic-category {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e1e5e9;
+        }
+
+        .topic-category h4 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.2em;
+        }
+
+        .topic-option {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f8f9fa;
+        }
+
+        .topic-option:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .topic-option.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .reflection-area {
+            margin-top: 20px;
+        }
+
+        .reflection-area textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e1e5e9;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .remove-question {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+
+        .remove-question:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+
+        .final-buttons {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .hidden-inputs {
+            display: none;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .difficulty-selector {
+                flex-direction: column;
+            }
+            
+            .topic-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>SAT Reflection Analysis</h1>
+            <p>Track your mistakes and improve your performance</p>
+        </div>
+
+        <div class="form-container">
+            <form id="satForm" method="POST">
+                <!-- FormSubmit Configuration -->
+                <input type="hidden" name="_subject" value="SAT Reflection Analysis Submission">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_template" value="table">
+                <input type="hidden" name="_next" value="https://formsubmit.co/thanks">
+                
+                <div class="test-name-section">
+                    <div class="form-group">
+                        <label for="testName">Test Name</label>
+                        <input type="text" id="testName" name="test_name" placeholder="Enter test name (e.g., BB07, RT01, TQ12, IT11)" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userEmail">Your Email Address</label>
+                        <input type="email" id="userEmail" name="user_email" placeholder="Enter your email address" required>
+                        <small style="color: #666; font-size: 0.9em; margin-top: 5px; display: block;">
+                            The reflection analysis will be sent to this email address
+                        </small>
+                    </div>
+                </div>
+
+                <div id="questionsContainer">
+                    <!-- Questions will be added here -->
+                </div>
+
+                <!-- Hidden inputs to store formatted data -->
+                <div class="hidden-inputs" id="hiddenInputs"></div>
+
+                <div class="buttons">
+                    <button type="button" class="btn btn-primary" onclick="addQuestion()">Add Question</button>
+                    <button type="button" class="btn btn-secondary" onclick="clearForm()">Clear All</button>
+                </div>
+
+                <div class="final-buttons" id="finalButtons" style="display: none;">
+                    <button type="submit" class="btn btn-success">Submit All Questions</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Data structures
+        const reasons = [
+            "Made a marking mistake",
+            "Misunderstood the question",
+            "Missed something",
+            "Didn't know the exact meaning of a keyword",
+            "Didn't understand the sentence/context/concept",
+            "Changed the answer when I went back",
+            "Didn't know where to look for the right answer"
+        ];
+
+        const topics = {
+                        "Reading and Writing 1": {
+                "1. Information and Ideas": [
+                    "1-1 CID (Central Ideas and Details)",
+                    "1-2 INF (Command of Evidence)",
+                    "1-3 COE (Command of Evidence) Text/Quantitative"
+                ],
+                "2. Craft and Structure": [
+                    "2-1 WIC (Words in Context)",
+                    "2-2 TSP (Text Structure and Purpose)",
+                    "2-3 CTC (Cross-Text Connections)"
+                ],
+                "3. Expression of Ideas": [
+                    "3-1 RS (Rhetorical Synthesis)",
+                    "3-2 Tran (Transitions)"
+                ],
+                "4. Standard English Conventions": [
+                    "4-1 BND (Boundaries)",
+                    "4-2 FSS (Form, Structure, & Sense)"
+                ]
+            },
+            "Reading and Writing 2": {
+                "1. Information and Ideas": [
+                    "1-1 CID (Central Ideas and Details)",
+                    "1-2 INF (Command of Evidence)",
+                    "1-3 COE (Command of Evidence) Text/Quantitative"
+                ],
+                "2. Craft and Structure": [
+                    "2-1 WIC (Words in Context)",
+                    "2-2 TSP (Text Structure and Purpose)",
+                    "2-3 CTC (Cross-Text Connections)"
+                ],
+                "3. Expression of Ideas": [
+                    "3-1 RS (Rhetorical Synthesis)",
+                    "3-2 Tran (Transitions)"
+                ],
+                "4. Standard English Conventions": [
+                    "4-1 BND (Boundaries)",
+                    "4-2 FSS (Form, Structure, & Sense)"
+                ]
+            },
+            "Math 1": {
+                "5. Algebra": [
+                    "5-1 Linear equations in one variable",
+                    "5-2 Linear functions",
+                    "5-3 Linear equations in two variables",
+                    "5-4 Systems of two linear equations in two variables",
+                    "5-5 Linear inequalities in one or two variables"
+                ],
+                "6. Advanced Math": [
+                    "6-1 Nonlinear functions",
+                    "6-2 Nonlinear equations in one variable and systems of equations in two variables",
+                    "6-3 Equivalent expressions"
+                ],
+                "7. Problem Solving & Data Analysis": [
+                    "7-1 Ratios, rates, proportional relationships, & units",
+                    "7-2 Percentages",
+                    "7-3 One-variable data: Distributions and measures of center and spread",
+                    "7-4 Two-variable data: Models and scatterplots",
+                    "7-5 Probability and conditional probability",
+                    "7-6 Inference from sample statistics & margin of error",
+                    "7-7 Evaluating statistical claims: Observational studies and experiments"
+                ],
+                "8. Geometry & Trigonometry": [
+                    "8-1 Area and volume",
+                    "8-2 Lines, angles, and triangles",
+                    "8-3 Right triangles and trigonometry",
+                    "8-4 Circle"
+                ]
+            },
+            "Math 2": {
+                "5. Algebra": [
+                    "5-1 Linear equations in one variable",
+                    "5-2 Linear functions",
+                    "5-3 Linear equations in two variables",
+                    "5-4 Systems of two linear equations in two variables",
+                    "5-5 Linear inequalities in one or two variables"
+                ],
+                "6. Advanced Math": [
+                    "6-1 Nonlinear functions",
+                    "6-2 Nonlinear equations in one variable and systems of equations in two variables",
+                    "6-3 Equivalent expressions"
+                ],
+                "7. Problem Solving & Data Analysis": [
+                    "7-1 Ratios, rates, proportional relationships, & units",
+                    "7-2 Percentages",
+                    "7-3 One-variable data: Distributions and measures of center and spread",
+                    "7-4 Two-variable data: Models and scatterplots",
+                    "7-5 Probability and conditional probability",
+                    "7-6 Inference from sample statistics & margin of error",
+                    "7-7 Evaluating statistical claims: Observational studies and experiments"
+                ],
+                "8. Geometry & Trigonometry": [
+                    "8-1 Area and volume",
+                    "8-2 Lines, angles, and triangles",
+                    "8-3 Right triangles and trigonometry",
+                    "8-4 Circle"
+                ]
+            }
+        };
+
+        let questionCount = 0;
+        let questionData = {};
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            addQuestion(); // Add the first question
+            setupFormSubmission();
+        });
+
+        function addQuestion() {
+            questionCount++;
+            const questionId = `question-${questionCount}`;
+            
+            const questionSection = document.createElement('div');
+            questionSection.className = 'question-section';
+            questionSection.setAttribute('data-question-number', questionCount);
+            questionSection.setAttribute('data-question-id', questionId);
+            
+            questionSection.innerHTML = `
+                ${questionCount > 1 ? '<button type="button" class="remove-question" onclick="removeQuestion(\'' + questionId + '\')">&times;</button>' : ''}
+                
+                <div class="form-group">
+                    <label for="${questionId}-module">Module</label>
+                    <select id="${questionId}-module" name="${questionId}-module" required>
+                        <option value="">Select Module</option>
+                        <option value="Reading and Writing 1">Reading and Writing 1</option>
+                        <option value="Reading and Writing 2">Reading and Writing 2</option>
+                        <option value="Math 1">Math 1</option>
+                        <option value="Math 2">Math 2</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="${questionId}-questionNumber">Question Number</label>
+                    <input type="number" id="${questionId}-questionNumber" name="${questionId}-questionNumber" min="1" max="50" placeholder="Enter question number" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Difficulty Assessment</label>
+                    <div class="difficulty-selector">
+                        <div class="difficulty-option" data-difficulty="easy" data-question-id="${questionId}">
+                            <div class="difficulty-icon">⭕</div>
+                            <div>Easy</div>
+                        </div>
+                        <div class="difficulty-option" data-difficulty="medium" data-question-id="${questionId}">
+                            <div class="difficulty-icon">🔺</div>
+                            <div>50-50</div>
+                        </div>
+                        <div class="difficulty-option" data-difficulty="hard" data-question-id="${questionId}">
+                            <div class="difficulty-icon">❌</div>
+                            <div>Hard</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="${questionId}-reason">Reason for Wrong Answer</label>
+                    <div class="searchable-select">
+                        <input type="text" id="${questionId}-reason" name="${questionId}-reason" class="searchable-input" placeholder="Start typing or select from dropdown..." required>
+                        <div class="dropdown-options" id="${questionId}-reasonDropdown"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Topic Categories</label>
+                    <div class="topic-grid" id="${questionId}-topicGrid"></div>
+                </div>
+
+                <div class="form-group reflection-area">
+                    <label for="${questionId}-reflection">Personal Reflection</label>
+                    <textarea id="${questionId}-reflection" name="${questionId}-reflection" placeholder="Write your thoughts on why you got this question wrong and how you can improve..." required></textarea>
+                </div>
+            `;
+
+            document.getElementById('questionsContainer').appendChild(questionSection);
+            
+            // Initialize question data
+            questionData[questionId] = {
+                difficulty: '',
+                topic: ''
+            };
+
+            // Setup event listeners for this question
+            setupQuestionEventListeners(questionId);
+            
+            // Show final buttons if we have questions
+            document.getElementById('finalButtons').style.display = 'block';
+            
+            // Scroll to the new question
+            questionSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function removeQuestion(questionId) {
+            const questionSection = document.querySelector(`[data-question-id="${questionId}"]`);
+            if (questionSection) {
+                questionSection.remove();
+                delete questionData[questionId];
+                
+                // Renumber questions
+                renumberQuestions();
+                
+                // Hide final buttons if no questions
+                if (Object.keys(questionData).length === 0) {
+                    document.getElementById('finalButtons').style.display = 'none';
+                }
+            }
+        }
+
+        function renumberQuestions() {
+            const questionSections = document.querySelectorAll('.question-section');
+            questionSections.forEach((section, index) => {
+                section.setAttribute('data-question-number', index + 1);
+            });
+        }
+
+        function setupQuestionEventListeners(questionId) {
+            // Difficulty selector
+            const difficultyOptions = document.querySelectorAll(`[data-question-id="${questionId}"].difficulty-option`);
+            difficultyOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selected class from all options in this question
+                    difficultyOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    questionData[questionId].difficulty = this.dataset.difficulty;
+                });
+            });
+
+            // Module change
+            const moduleSelect = document.getElementById(`${questionId}-module`);
+            moduleSelect.addEventListener('change', function() {
+                updateTopicGrid(questionId, this.value);
+            });
+
+            // Searchable dropdown
+            setupSearchableDropdown(questionId);
+        }
+
+        function setupSearchableDropdown(questionId) {
+            const reasonInput = document.getElementById(`${questionId}-reason`);
+            const dropdown = document.getElementById(`${questionId}-reasonDropdown`);
+
+            reasonInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                const filtered = reasons.filter(reason => 
+                    reason.toLowerCase().includes(query)
+                );
+                showDropdown(questionId, filtered);
+            });
+
+            reasonInput.addEventListener('focus', function() {
+                showDropdown(questionId, reasons);
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!reasonInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+
+        function showDropdown(questionId, items) {
+            const dropdown = document.getElementById(`${questionId}-reasonDropdown`);
+            dropdown.innerHTML = '';
+            
+            items.forEach(item => {
+                const option = document.createElement('div');
+                option.className = 'dropdown-option';
+                option.textContent = item;
+                option.addEventListener('click', function() {
+                    document.getElementById(`${questionId}-reason`).value = item;
+                    dropdown.style.display = 'none';
+                });
+                dropdown.appendChild(option);
+            });
+
+            dropdown.style.display = items.length > 0 ? 'block' : 'none';
+        }
+
+        function updateTopicGrid(questionId, module) {
+            const topicGrid = document.getElementById(`${questionId}-topicGrid`);
+            topicGrid.innerHTML = '';
+            questionData[questionId].topic = '';
+
+            if (!module || !topics[module]) return;
+
+            const moduleTopics = topics[module];
+            
+            Object.keys(moduleTopics).forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'topic-category';
+                
+                const categoryTitle = document.createElement('h4');
+                categoryTitle.textContent = category;
+                categoryDiv.appendChild(categoryTitle);
+
+                moduleTopics[category].forEach(topic => {
+                    const topicDiv = document.createElement('div');
+                    topicDiv.className = 'topic-option';
+                    topicDiv.textContent = topic;
+                    topicDiv.addEventListener('click', function() {
+                        // Remove selected class from all topics in this question
+                        topicGrid.querySelectorAll('.topic-option').forEach(opt => opt.classList.remove('selected'));
+                        this.classList.add('selected');
+                        questionData[questionId].topic = topic;
+                    });
+                    categoryDiv.appendChild(topicDiv);
+                });
+
+                topicGrid.appendChild(categoryDiv);
+            });
+        }
+
+        function setupFormSubmission() {
+            document.getElementById('satForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                prepareAndSubmitForm();
+            });
+        }
+
+        function prepareAndSubmitForm() {
+            const testName = document.getElementById('testName').value;
+            const userEmail = document.getElementById('userEmail').value;
+            
+            if (!testName) {
+                alert('Please enter a test name');
+                return;
+            }
+
+            if (!userEmail) {
+                alert('Please enter your email address');
+                return;
+            }
+
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(userEmail)) {
+                alert('Please enter a valid email address');
+                return;
+            }
+
+            const questionsToSubmit = [];
+            let hasErrors = false;
+            
+            // Collect data from all questions
+            Object.keys(questionData).forEach(questionId => {
+                const moduleSelect = document.getElementById(`${questionId}-module`);
+                const questionNumber = document.getElementById(`${questionId}-questionNumber`);
+                const reason = document.getElementById(`${questionId}-reason`);
+                const reflection = document.getElementById(`${questionId}-reflection`);
+                
+                if (!moduleSelect.value || !questionNumber.value || !questionData[questionId].difficulty || 
+                    !reason.value || !questionData[questionId].topic || !reflection.value) {
+                    alert(`Please fill out all fields for Question ${questionId.split('-')[1]}`);
+                    hasErrors = true;
+                    return;
+                }
+
+                questionsToSubmit.push({
+                    questionId: questionId,
+                    module: moduleSelect.value,
+                    questionNumber: questionNumber.value,
+                    difficulty: questionData[questionId].difficulty,
+                    reason: reason.value,
+                    topic: questionData[questionId].topic,
+                    reflection: reflection.value
+                });
+            });
+
+            if (hasErrors || questionsToSubmit.length === 0) {
+                if (questionsToSubmit.length === 0) {
+                    alert('Please add at least one question');
+                }
+                return;
+            }
+
+            // Set the form action to the user's email
+            document.getElementById('satForm').action = `https://formsubmit.co/${userEmail}`;
+
+            // Clear previous hidden inputs
+            document.getElementById('hiddenInputs').innerHTML = '';
+
+            // Add summary information
+            const summaryInput = document.createElement('input');
+            summaryInput.type = 'hidden';
+            summaryInput.name = 'summary';
+            summaryInput.value = `Test: ${testName} | Total Questions: ${questionsToSubmit.length}`;
+            document.getElementById('hiddenInputs').appendChild(summaryInput);
+
+            // Create formatted data for each question
+            questionsToSubmit.forEach((q, index) => {
+                const questionNumber = index + 1;
+                
+                // Create a comprehensive formatted string for each question
+                const questionData = [
+                    `QUESTION ${questionNumber}`,
+                    `Module: ${q.module}`,
+                    `Question Number: ${q.questionNumber}`,
+                    `Difficulty: ${q.difficulty.charAt(0).toUpperCase() + q.difficulty.slice(1)}`,
+                    `Reason: ${q.reason}`,
+                    `Topic: ${q.topic}`,
+                    `Reflection: ${q.reflection}`,
+                    '---'
+                ].join('\n');
+
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = `question_${questionNumber}_details`;
+                hiddenInput.value = questionData;
+                document.getElementById('hiddenInputs').appendChild(hiddenInput);
+            });
+
+            // Show loading overlay
+            document.getElementById('loadingOverlay').style.display = 'flex';
+
+            // Submit the form
+            document.getElementById('satForm').submit();
+        }
+
+        function clearForm() {
+            if (confirm('Are you sure you want to clear all questions?')) {
+                document.getElementById('questionsContainer').innerHTML = '';
+                questionCount = 0;
+                questionData = {};
+                document.getElementById('testName').value = '';
+                document.getElementById('finalButtons').style.display = 'none';
+                document.getElementById('hiddenInputs').innerHTML = '';
+                addQuestion(); // Add the first question back
+            }
+        }
+    </script>
+</body>
+</html>
