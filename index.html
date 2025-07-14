@@ -423,7 +423,8 @@
                 <input type="hidden" name="_subject" value="SAT Reflection Analysis Submission">
                 <input type="hidden" name="_captcha" value="true">
                 <input type="hidden" name="_template" value="table">
-                <input type="hidden" name="_next" value="https://formsubmit.co/thanks">
+                <input type="hidden" name="_next" value="thankyou.html">
+
 
                 <div class="test-name-section">
                     <div class="form-group">
@@ -889,7 +890,7 @@
 
                 const hiddenInput = document.createElement('input');
                 hiddenInput.type = 'hidden';
-                hiddenInput.name = `Reflection_${questionNumber} details`;
+                hiddenInput.name = `Reflection ${questionNumber} details`;
                 hiddenInput.value = questionData;
                 document.getElementById('hiddenInputs').appendChild(hiddenInput);
             });
