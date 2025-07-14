@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="website icon" type="png" href="capturfavicon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thank You!</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .thank-you-card {
+      background: white;
+      padding: 3rem 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      max-width: 480px;
+      width: 100%;
+      border: 2px solid #e1e5e9;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      z-index: 10;
+    }
+
+    .thank-you-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+
+    .checkmark {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0 auto 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: checkmarkPop 0.6s ease-out 0.3s both;
+    }
+
+    .checkmark svg {
+      width: 40px;
+      height: 40px;
+      color: white;
+      stroke-width: 3;
+    }
+
+    .checkmark-path {
+      stroke-dasharray: 50;
+      stroke-dashoffset: 50;
+      animation: checkmarkDraw 0.5s ease-out 0.8s both;
+    }
+
+    h1 {
+      color: #1e3c72;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      animation: slideUp 0.6s ease-out 0.5s both;
+    }
+
+    p {
+      color: #444;
+      font-size: 1.125rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+      animation: slideUp 0.6s ease-out 0.7s both;
+    }
+
+    .back-button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+      animation: slideUp 0.6s ease-out 0.9s both;
+    }
+
+    .back-button:hover {
+      background: #5a6edc;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+    }
+
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: #667eea;
+      z-index: 1;
+    }
+
+    .confetti:nth-child(odd) {
+      background: #764ba2;
+      border-radius: 50%;
+    }
+
+    .confetti:nth-child(even) {
+      background: #8c9eff;
+    }
+
+    .confetti:nth-child(4n) {
+      background: #aab6ff;
+      border-radius: 50%;
+    }
+
+    .confetti:nth-child(3n) {
+      background: #c5cae9;
+    }
+
+    @keyframes checkmarkPop {
+      0% {
+        transform: scale(0);
+        opacity: 0;
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes checkmarkDraw {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 0;
+      }
+
+      .thank-you-card {
+        border-radius: 0;
+        padding: 2rem 1.5rem;
+        margin: 0;
+        max-width: none;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
+      .back-button {
+        width: 100%;
+        padding: 14px;
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="thank-you-card">
+    <div class="checkmark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path class="checkmark-path" d="M20 6L9 17l-5-5" />
+      </svg>
+    </div>
+
+    <h1>Reflection Submitted</h1>
+    <p>Your SAT Reflection Form has been submitted successfully.<br>
+      Check your email for a summary of your answers to help identify patterns and boost your performance.</p>
+
+    <a href="index.html" class="back-button">Return to Form</a>
+  </div>
+
+  <script>
+    function createConfetti() {
+      const confettiCount = 100;
+      const body = document.body;
+
+      for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        confetti.style.animationDelay = Math.random() * 2 + 's';
+        confetti.style.animation = `confetti-fall ${confetti.style.animationDuration} linear ${confetti.style.animationDelay} forwards`;
+
+        const size = Math.random() * 8 + 4;
+        confetti.style.width = size + 'px';
+        confetti.style.height = size + 'px';
+
+        body.appendChild(confetti);
+
+        setTimeout(() => {
+          if (confetti.parentNode) {
+            confetti.parentNode.removeChild(confetti);
+          }
+        }, 5000);
+      }
+    }
+
+    window.addEventListener('load', () => {
+      setTimeout(createConfetti, 500);
+      setTimeout(createConfetti, 1500);
+      setTimeout(createConfetti, 2500);
+    });
+  </script>
+</body>
+
+</html>
