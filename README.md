@@ -6,7 +6,7 @@ A powerful but simple tool to help SAT, GRE, LSAT, and ACT test-takers identify 
 
 ## 📌 Overview
 
-This project provides a structured reflection form that students can use after completing practice tests or question sets. By logging each incorrect response and analyzing the "why" behind the mistake, users can uncover patterns in their test-taking behavior (e.g., rushing, misreading, weak content areas), and adjust their study strategy accordingly.
+This project provides a structured reflection form that students can use after completing practice tests or question sets. By logging each incorrect response and analyzing the "why" behind the mistake, users can uncover patterns in their test-taking behavior (e.g., rushing, misreading, weak content areas), and adjust their study strategy accordingly. 
 
 ---
 
